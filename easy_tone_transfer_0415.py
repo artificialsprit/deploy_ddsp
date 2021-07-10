@@ -45,13 +45,13 @@
 
 
 # 자신의 구글 드라이브에 모델 업로드 한 경로로 아래 위치 업데이트 하기!!! 
-myPath = '/gdrive/MyDrive/Data/Sound_Synthesis/models/'
+myPath = './'
 
 
 # In[2]:
 
 
-l
+
 
 # colab에서는 항상 필요한 패키지 매번 설치  
 
@@ -73,21 +73,23 @@ import time
 import crepe
 import ddsp
 import ddsp.training
-from ddsp.colab import colab_utils
-from ddsp.colab.colab_utils import (
-    auto_tune, detect_notes, fit_quantile_transform, 
-    get_tuning_factor, download, play, record, 
-    specplot, upload, DEFAULT_SAMPLE_RATE)
+# from ddsp.colab import colab_utils
+# from ddsp.colab.colab_utils import (
+#     auto_tune, detect_notes, fit_quantile_transform, 
+#     get_tuning_factor, download, play, record, 
+#     specplot, upload, DEFAULT_SAMPLE_RATE)
 import gin
-from google.colab import files
+# from google.colab import files
 import librosa
 import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 import tensorflow.compat.v2 as tf
 import tensorflow_datasets as tfds
+import pydub
 
 # Helper Functions
+DEFAULT_SAMPLE_RATE = 16000
 sample_rate = DEFAULT_SAMPLE_RATE  # 16000
 
 
@@ -109,18 +111,33 @@ record_or_upload = "Upload (.mp3 or .wav)"  #@param ["Record", "Upload (.mp3 or 
 
 record_seconds =      20#@param {type:"number", min:1, max:10, step:1}
 
+def read(f, normalized=False):
+    """MP3 to numpy array"""
+    a = pydub.AudioSegment.from_mp3(f)
+    y = np.array(a.get_array_of_samples())
+    # if a.channels == 2:
+    #     y = y.reshape((-1, 2))
+    if normalized:
+        return a.frame_rate, np.float32(y) / 2**15
+    else:
+        return a.frame_rate, y
+
+
 if record_or_upload == "Record":
   audio = record(seconds=record_seconds)
 else:
   # Load audio sample here (.mp3 or .wav3 file)
   # Just use the first file.
-  filenames, audios = upload()
+  filenames = ['202003294049_89bpm.mp3']
+  rrate, audios = read(filenames[0],normalized=True)
+  # audio = note_seq.audio_io.wav_data_to_samples_pydub(wav_data=str.encode(filenames[0]),sample_rate=16000,normalize_db=None)
+  audios = [audios]
   audio = audios[0]
   
   flag = 'multi' if audio.ndim==2 else 'mono'
   print(audio.shape)
   # monopoly : (352000,)  (1, 352000)
-  # non-monopoly : 
+  # non-monopoly : (2, 8681472)
 
 
 # In[5]:
@@ -135,15 +152,16 @@ print(audio.shape)
 print('\nExtracting audio features...')
 
 # Plot.
-specplot(audio)
-play(audio)
+# specplot(audio)
+# play(audio)
 
 # Setup the session.
 ddsp.spectral_ops.reset_crepe()
 
 # Compute features.
 start_time = time.time()
-audio_features = ddsp.training.metrics.compute_audio_features(audio)
+# audio_features = ddsp.training.metrics.compute_audio_features(audio)
+audio_features={'audio':np.random.uniform(-0.3,0.3,size=(254955)), 'loudness_db':np.random.uniform(-120,-26,size=(3983)), 'f0_hz':np.random.uniform(0,495.8,size=(3983)), 'f0_confidence':np.random.uniform(0,1,size=(3983))}
 audio_features['loudness_db'] = audio_features['loudness_db'].astype(np.float32)
 audio_features_mod = None
 print('Audio features took %.1f seconds' % (time.time() - start_time))
@@ -280,9 +298,9 @@ with gin.unlock_config():
 for key in ['f0_hz', 'f0_confidence', 'loudness_db']:
   audio_features[key] = audio_features[key][:time_steps]
 
-if flag == 'mono':
+if flag == 'multi':
   audio_features['audio'] = audio_features['audio'][:, :n_samples]
-elif flag == 'multi': 
+elif flag == 'mono': 
   audio_features['audio'] = audio_features['audio'][ :n_samples]
 
 
@@ -294,6 +312,7 @@ print(audio_features)
 start_time = time.time()
 _ = model(audio_features, training=False)
 print('Restoring model took %.1f seconds' % (time.time() - start_time))
+# cpu : 481.2 seconds
 
 
 # # 직접 생성한 모델로 여러가지 실험 해보기  
@@ -442,7 +461,8 @@ af = audio_features if audio_features_mod is None else audio_features_mod
 
 # Run a batch of predictions.
 start_time = time.time()
-outputs = model(af, training=False)
+
+ = model(af, training=False)
 audio_gen = model.get_audio_from_outputs(outputs)
 print('Prediction took %.1f seconds' % (time.time() - start_time))
 print('hi',vars(model).keys())
@@ -450,15 +470,15 @@ print('by', vars(audio_gen).keys())
 print(type(audio_gen), type(audio))
 # Plot
 print('Original')
-play(audio)
+# play(audio)
 
 print('Resynthesis')
-play(audio_gen)
+# play(audio_gen)
 
-specplot(audio)
+# specplot(audio)
 plt.title("Original")
 
-specplot(audio_gen)
+# specplot(audio_gen)
 _ = plt.title("Resynthesis")
 
 

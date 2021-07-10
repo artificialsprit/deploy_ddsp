@@ -1,3 +1,0 @@
--U
-tensorflow==2.5.0
-ddsp==1.0.1

@@ -2,7 +2,7 @@ import os
 # os.system('sh setup.sh')
 from flask import Flask, render_template, request, send_from_directory
 
-from main import main
+# from main import main
 
 app = Flask(__name__, static_url_path='/static')
 
@@ -33,4 +33,4 @@ def predict():
 
 
 if __name__=="__main__":
-    app.run(debug=True)#, port=3000, host='0.0.0.0')
+    app.run(debug=True, port=3000, host='0.0.0.0')

@@ -6,7 +6,7 @@ from main import main
 
 app = Flask(__name__, static_url_path='/static')
 
-output_name = 'static/new.mp3'
+# output_name = 'static/new.mp3'
 
 @app.route('/', methods=['GET'])
 def hello_world():
@@ -14,12 +14,14 @@ def hello_world():
 
 @app.route('/', methods=['POST'])
 def predict():
+    output_name = 'static/new.mp3'
     sound_file=request.files['soundfile']
     sound_path = './static/'+sound_file.filename
     sound_file.save(sound_path)
     # main(sound_path, output_name)
-    if not sys.path.exists(output_name):
-        output_name = sound_path
+    # if not os.path.exists(output_name):
+    #     output_name = sound_path
+    output_name = sound_path
     return render_template('index.html', output=output_name)
 
 # @app.route('/js/<path:path>')

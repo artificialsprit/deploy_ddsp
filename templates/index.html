@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            Artificial Spirit
+        </title>
+    </head>
+    <body>
+        <br><br><br>
+        <h1 class="text-center" style='background-color:powderblue'>Tone Transfer - DDSP</h1>
+        ################################################################################
+        <h2 class='text-center'> PLEASE :: no space in your mp3 file name</h2>
+        ################################################################################
+        <br><br><br>
+
+        <label for="avatar">Choose your sound:</label>
+
+        <form class='p-3 text-center' action='/', method='post' enctype="multipart/form-data">
+            <input type="file"
+                id="avatar" name="soundfile"
+                >
+                <!-- accept="image/png, image/jpeg" -->
+            <input class='btn btn-primary mt-3'type='submit' value=CLICK Image>
+        </form>
+        {% if output %}
+            <audio controls>
+                <!-- <source src="horse.ogg" type="audio/ogg"> -->
+                <source src={{output}} type="audio/mpeg">
+            Your browser does not support the audio element.
+            </audio>
+        {% endif %}
+          
+
+    </body>
+</html>

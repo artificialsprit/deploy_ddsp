@@ -1,2 +1,8 @@
 # deploy_ddsp
-deploy ddsp
+
+run :
+```python
+python app.py
+```
+and then go to 
+``localhost:3000``

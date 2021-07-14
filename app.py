@@ -4,15 +4,15 @@ from flask import Flask, render_template, request, send_from_directory
 
 # from main import main
 
-app = Flask(__name__, static_url_path='/static')
+application = Flask(__name__, static_url_path='/static')
 
 # output_name = 'static/new.mp3'
 
-@app.route('/', methods=['GET'])
+@application.route('/', methods=['GET'])
 def hello_world():
     return render_template("index.html")
 
-@app.route('/', methods=['POST'])
+@application.route('/', methods=['POST'])
 def predict():
     output_name = 'static/new.mp3'
     sound_file=request.files['soundfile']

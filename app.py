@@ -19,9 +19,8 @@ def predict():
     sound_path = './static/'+sound_file.filename
     sound_file.save(sound_path)
     # main(sound_path, output_name)
-    # if not os.path.exists(output_name):
-    #     output_name = sound_path
-    output_name = sound_path
+    if not os.path.exists(output_name):
+        output_name = sound_path
     return render_template('index.html', output=output_name)
 
 # @app.route('/js/<path:path>')

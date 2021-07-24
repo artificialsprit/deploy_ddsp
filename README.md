@@ -11,3 +11,10 @@ python app.py
 ```
 and then go to 
 ``localhost:3000``.
+
+
+## run main.py
+
+```console
+python main.py
+```
